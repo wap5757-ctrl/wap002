@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บ้านแสนสุข LED Dashboard</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#090018,#240046,#5a189a,#7b2cbf);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+body::before{
+    content:'';
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:
+    radial-gradient(circle at 20% 20%,rgba(255,255,255,.2),transparent 2%),
+    radial-gradient(circle at 80% 40%,rgba(255,255,255,.2),transparent 2%),
+    radial-gradient(circle at 50% 70%,rgba(255,255,255,.15),transparent 2%);
+    z-index: 1;
+}
+
+.main-container{
+    position:relative;
+    z-index: 10;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    padding:40px;
+    border-radius:25px;
+    text-align:center;
+    color:white;
+    width:100%;
+    max-width:1000px; /* ขยายขนาดรองรับ 6 ช่อง */
+    box-shadow:0 0 30px rgba(255,0,255,.4);
+}
+
+h1{
+    margin-bottom:30px;
+    font-size: 32px;
+    letter-spacing: 1px;
+}
+
+/* สร้างระบบ Grid แบ่งเป็น 3 คอลัมน์ 2 แถว ตามรูปบนกระดาน */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr); /* ปรับตามขนาดจอความมือถือ */
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.control-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.control-box:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-5px);
+}
+
+.room-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.led {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background:#444;
+    box-shadow:0 0 15px #333;
+    transition:.3s;
+    margin-bottom: 15px;
+}
+
+.on {
+    background:#00ff99;
+    box-shadow:
+    0 0 15px #00ff99,
+    0 0 30px #00ff99;
+}
+
+.off {
+    background:#444;
+    box-shadow: 0 0 15px #333;
+}
+
+.status {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg,#ff00ff,#7b2cbf);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(255,0,255,.4);
+    transition: 0.2s;
+    width: 100%;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* ปุ่มควบคุมทั้งหมดให้สีเด่นกว่าเดิม */
+.all-box button {
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    box-shadow: 0 0 15px rgba(0,242,254,.4);
+}
+</style>
+</head>
+<body>
+
+<div class="main-container">
+    <h1>🏡 บ้านแสนสุข Dashboard</h1>
+
+    <div class="dashboard-grid">
+        
+        <div class="control-box">
+            <div class="room-title">ห้องนอน</div>
+            <div id="led-bedroom" class="led off"></div>
+            <div class="status">สถานะ: <span id="status-bedroom">OFF</span></div>
+            <button id="btn-bedroom">Toggle</button>
+        </div>
+
+        <div class="control-box">
+            <div class="room-title">ห้องน้ำ</div>
+            <div id="led-bathroom" class="led off"></div>
+            <div class="status">สถานะ: <span id="status-bathroom">OFF</span></div>
+            <button id="btn-bathroom">Toggle</button>
+        </div>
+
+        <div class="control-box">
+            <div class="room-title">ห้องรับแขก</div>
+            <div id="led-living" class="led off"></div>
+            <div class="status">สถานะ: <span id="status-living">OFF</span></div>
+            <button id="btn-living">Toggle</button>
+        </div>
+
+        <div class="control-box">
+            <div class="room-title">ห้องครัว</div>
+            <div id="led-kitchen" class="led off"></div>
+            <div class="status">สถานะ: <span id="status-kitchen">OFF</span></div>
+            <button id="btn-kitchen">Toggle</button>
+        </div>
+
+        <div class="control-box">
+            <div class="room-title">หน้าบ้าน</div>
+            <div id="led-front" class="led off"></div>
+            <div class="status">สถานะ: <span id="status-front">OFF</span></div>
+            <button id="btn-front">Toggle</button>
+        </div>
+
+        <div class="control-box all-box">
+            <div class="room-title">ทั้งหมด</div>
+            <div id="led-all" class="led off"></div>
+            <div class="status">สถานะ: <span id="status-all">OFF</span></div>
+            <button id="btn-all">เปิด / ปิด ทั้งหมด</button>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9qqIvZTqpTjoz9cvW1-Ng0j0TJC2coHA",
+  authDomain: "lot1-82794.firebaseapp.com",
+  databaseURL: "https://lot1-82794-default-rtdb.firebaseio.com",
+  projectId: "lot1-82794",
+  storageBucket: "lot1-82794.firebasestorage.app",
+  messagingSenderId: "217364647852",
+  appId: "1:217364647852:web:09125982bdbccfaf5ff409",
+  measurementId: "G-FTPSSWL4SX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ชี้ไปยังตำแหน่งเอกสารใน Firestore เหมือนเดิม
+const ref = doc(db, "IoT1", "device1");
+
+// ตัวแปรเก็บสถานะของแต่ละห้องภายในบอร์ด
+let states = {
+    led1: 0, // ห้องนอน
+    led2: 0, // ห้องน้ำ
+    led3: 0, // ห้องรับแขก
+    led4: 0, // ห้องครัว
+    led5: 0, // หน้าบ้าน
+    all: 0   // ทั้งหมด
+};
+
+// จับคู่ Element บนหน้าเว็บ
+const ui = {
+    bedroom:  { led: document.getElementById("led-bedroom"),   txt: document.getElementById("status-bedroom") },
+    bathroom: { led: document.getElementById("led-bathroom"),  txt: document.getElementById("status-bathroom") },
+    living:   { led: document.getElementById("led-living"),    txt: document.getElementById("status-living") },
+    kitchen:  { led: document.getElementById("led-kitchen"),   txt: document.getElementById("status-kitchen") },
+    front:    { led: document.getElementById("led-front"),     txt: document.getElementById("status-front") },
+    all:      { led: document.getElementById("led-all"),       txt: document.getElementById("status-all") }
+};
+
+// ฟังก์ชันอัปเดต UI ไฟกลมๆ และข้อความสถานะแต่ละช่อง
+function updateRoomUI(roomKey, val) {
+    if (val == 1) {
+        ui[roomKey].txt.innerHTML = "ON";
+        ui[roomKey].led.className = "led on";
+    } else {
+        ui[roomKey].txt.innerHTML = "OFF";
+        ui[roomKey].led.className = "led off";
+    }
+}
+
+// ฟังข้อมูลแบบ Realtime จาก Firebase
+onSnapshot(ref, (snapshot) => {
+    if (snapshot.exists()) {
+        const data = snapshot.data();
+        
+        // โหลดค่าจากฟิลด์ led1 - led5 และ all (ถ้าไม่มีใน DB ให้เริ่มต้นที่ 0)
+        states.led1 = data.led1 !== undefined ? data.led1 : 0;
+        states.led2 = data.led2 !== undefined ? data.led2 : 0;
+        states.led3 = data.led3 !== undefined ? data.led3 : 0;
+        states.led4 = data.led4 !== undefined ? data.led4 : 0;
+        states.led5 = data.led5 !== undefined ? data.led5 : 0;
+        states.all  = data.all !== undefined ? data.all : 0;
+
+        // สั่งเปลี่ยนสีไฟและข้อความตามค่าจริงใน Database
+        updateRoomUI("bedroom", states.led1);
+        updateRoomUI("bathroom", states.led2);
+        updateRoomUI("living", states.led3);
+        updateRoomUI("kitchen", states.led4);
+        updateRoomUI("front", states.led5);
+        updateRoomUI("all", states.all);
+    }
+});
+
+// ฟังก์ชันสำหรับส่งค่าคำสั่งไป Firebase ชิ้นเดี่ยวๆ
+async function sendToggle(field, currentVal) {
+    const nextState = currentVal == 1 ? 0 : 1;
+    try {
+        await updateDoc(ref, { [field]: nextState });
+    } catch (e) {
+        console.error("Error updating field " + field, e);
+    }
+}
+
+// ผูกปุ่มกดแยกตามแต่ละห้อง
+document.getElementById("btn-bedroom").addEventListener("click", () => sendToggle("led1", states.led1));
+document.getElementById("btn-bathroom").addEventListener("click", () => sendToggle("led2", states.led2));
+document.getElementById("btn-living").addEventListener("click", () => sendToggle("led3", states.led3));
+document.getElementById("btn-kitchen").addEventListener("click", () => sendToggle("led4", states.led4));
+document.getElementById("btn-front").addEventListener("click", () => sendToggle("led5", states.led5));
+
+// ปุ่มควบคุม "ทั้งหมด" : เมื่อกดจะเปลี่ยนค่าห้อง 1-5 และบอสใหญ่ตามกันทั้งหมด
+document.getElementById("btn-all").addEventListener("click", async () => {
+    const nextAllState = states.all == 1 ? 0 : 1;
+    try {
+        await updateDoc(ref, {
+            led1: nextAllState,
+            led2: nextAllState,
+            led3: nextAllState,
+            led4: nextAllState,
+            led5: nextAllState,
+            all: nextAllState
+        });
+    } catch (e) {
+        console.error("Error updating all fields", e);
+    }
+});
+
+</script>
+
+</body>
+</html>
